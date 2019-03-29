@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:task="http://www.springframework.org/schema/task"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:tx="http://www.springframework.org/schema/tx" xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+   http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+   http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+   http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+   http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
+ 
+     <bean id="dataSource" class="org.apache.commons.dbcp2.BasicDataSource">
+        <!-- 基本属性 url、user、password -->        
+        <property name="driverClassName" value="com.mysql.cj.jdbc.Driver"/>
+        <property name="url" value="jdbc:mysql://localhost:3306/normal?useSSL=false"/>
+        <property name="username" value="root"/>
+        <property name="password" value="NEWLIFENEWSKY@55"/>
+      
+        <property name="maxIdle" value="5"/>
+        <property name="maxTotal" value="50"/>
+        <!-- 配置获取连接等待超时的时间 -->
+        <property name="maxWaitMillis" value="60000"/>
+        <property name="validationQuery" value="SELECT 'x'" />
+    </bean>
+    
+    <!-- 事务管理器配置数据源事务 -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">  
+        <property name="dataSource" ref="dataSource" />  
+        <!-- 自动扫描mapping.xml文件 -->  
+        <property name="mapperLocations" value="classpath:com/normal/mappers/*.xml"></property>
+    </bean>   
+    
+    
+    <!-- 使用注解定义事务 -->
+    <tx:annotation-driven transaction-manager="transactionManager" />
+    
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">  
+        <property name="basePackage" value="com.normal.dao" />  
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+        <property name="annotationClass" value="org.springframework.stereotype.Repository" />
+    </bean>  
+    
+    <!-- (事务管理)transaction manager, use JtaTransactionManager for global tx -->
+    <bean id="transactionManager"  
+        class="org.springframework.jdbc.datasource.DataSourceTransactionManager">  
+        <property name="dataSource" ref="dataSource" />  
+    </bean> 
+    
+    <!-- 定义一个定时任务类 -->
+    <!--
+    <bean id="cycleTask" class="com.normal.tools.CycleTask"></bean>  -->
+    <!-- 定义任务细节 -->
+     <!--
+    <bean id="midnightTaskJDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="cycleTask"></property>
+        <property name="targetMethod" value="MidnightTask"></property>
+        <property name="concurrent" value="false" /> --><!-- 作业不并发调度  -->
+    <!--</bean>-->
+    <!-- 定义午夜trigger 触发器  每天23.55 触发-->
+    <!--<bean id="midnightTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="jobDetail" ref="midnightTaskJDetail"></property>
+        <property name="cronExpression" value="00 55 23 * * ?"></property>
+    </bean>-->
+    
+    <!-- 定义调度表 -->
+    <!--<bean id="scheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+        <property name="triggers">
+           <list>
+                <ref bean="midnightTrigger"/>
+           </list>
+        </property>
+    </bean>-->
+    
+</beans>
